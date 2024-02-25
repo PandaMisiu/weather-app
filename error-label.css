@@ -1,0 +1,32 @@
+.error--label {
+  background-color: var(--error-dimished);
+  padding: 10px 16px;
+  border-radius: 16px;
+  color: var(--background-color);
+  margin: 15px 15px 0 15px;
+  position: relative;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.error--label-message {
+  font-weight: 500;
+}
+
+.error--label-close-btn {
+  border: none;
+  background: none;
+  position: absolute;
+  right: 7px;
+  top: 7px;
+}
+
+.error--label-close-btn:hover span {
+  color: rgb(196, 196, 196);
+}
+
+.error--label-close-btn span {
+  font-size: 15px;
+  color: var(--background-color);
+}

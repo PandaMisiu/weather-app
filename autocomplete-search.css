@@ -1,0 +1,21 @@
+.pac-container {
+  border-radius: 20px;
+  background-color: var(--background-color);
+}
+
+.pac-container::after {
+  content: none !important;
+}
+
+.pac-icon {
+  display: none;
+}
+
+.pac-item {
+  padding: 8px 16px;
+}
+
+.pac-item-query {
+  color: var(--text-color);
+  font-size: 1rem;
+}
