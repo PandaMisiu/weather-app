@@ -5,6 +5,7 @@
 // - weather info 12 hour i 5 dni
 // - przyciski obok pogody do zmiany grafu na 12 hour i 5 dni
 // - dodać żeby w tym boxie przy hoverze była tylko temperatura
+// - ogarnąć jeszcze funkcje fetchAPI ładnie
 
 // GEOLOCATION
 const geolocationBtn = document.querySelector(".geolocation--btn");
@@ -49,20 +50,19 @@ const darkMode = localStorage.getItem("dark-mode");
 // takes data.WeatherIcon as argument
 const getWeatherState = function (icon) {
   if (icon >= 1 && icon <= 2) return "sunny";
-  else if (icon >= 3 && icon <= 5) return "partly_cloudy_day";
-  else if (icon >= 6 && icon <= 8) return "cloud";
-  else if (icon === 11) return "foggy";
-  else if ((icon >= 12 && icon <= 14) || (icon >= 18 && icon <= 21))
-    return "rainy";
-  else if (icon >= 15 && icon <= 17) return "thunderstorm";
-  else if (icon >= 22 && icon <= 24) return "cloudy_snowing";
-  else if (icon === 25 || icon === 29) return "weather_mix";
-  else if (icon === 26) return "weather_hail";
-  else if (icon === 30) return "heat";
-  else if (icon === 31) return "severe_cold";
-  else if (icon === 32) return "air";
-  else if (icon === 33) return "clear_night";
-  else return "partly_cloudy_night";
+  if (icon >= 3 && icon <= 5) return "partly_cloudy_day";
+  if (icon >= 6 && icon <= 8) return "cloud";
+  if (icon === 11) return "foggy";
+  if ((icon >= 12 && icon <= 14) || (icon >= 18 && icon <= 21)) return "rainy";
+  if (icon >= 15 && icon <= 17) return "thunderstorm";
+  if (icon >= 22 && icon <= 24) return "cloudy_snowing";
+  if (icon === 25 || icon === 29) return "weather_mix";
+  if (icon === 26) return "weather_hail";
+  if (icon === 30) return "heat";
+  if (icon === 31) return "severe_cold";
+  if (icon === 32) return "air";
+  if (icon === 33) return "clear_night";
+  return "partly_cloudy_night";
 };
 
 const setCurrentWeatherState = function (data) {
@@ -71,6 +71,25 @@ const setCurrentWeatherState = function (data) {
 
 let defaultCity = "Warszawa"; // global default city, when geolacation fails
 let locationKey = 0; // global location key, to only run getLocationKey function once
+let currentWeatherURL;
+let forecast12hourURL;
+let forecast5dayURL;
+
+// const setWeatherInfo = async function (city) {
+//   try {
+//     getFullDate();
+//     await getLocationKey(city);
+//     if (locationKey === undefined) throw new Error("Invalid Location Key");
+//     setCurrentCity(city);
+//     const currentWeather = await getCurrentWeather();
+//     // console.log(currentWeather);
+//     setCurrentWeather(currentWeather);
+//     // await get5DaysForecast();
+//     await chartInit();
+//   } catch (err) {
+//     console.log(err.message);
+//   }
+// };
 
 const setWeatherInfo = async function (city) {
   try {
@@ -78,10 +97,11 @@ const setWeatherInfo = async function (city) {
     await getLocationKey(city);
     if (locationKey === undefined) throw new Error("Invalid Location Key");
     setCurrentCity(city);
-    const currentWeather = await getCurrentWeather(locationKey);
+    const [currentWeather] = await fetchAPI(currentWeatherURL);
     // console.log(currentWeather);
     setCurrentWeather(currentWeather);
     // await get5DaysForecast();
+    await chartInit();
   } catch (err) {
     console.log(err.message);
   }
@@ -89,29 +109,43 @@ const setWeatherInfo = async function (city) {
 
 const getLocationKey = async function (city) {
   try {
-    const locationRes = await fetch(
+    const res = await fetch(
       `http://dataservice.accuweather.com/locations/v1/cities/search?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&q=${city}&language=pl`
     );
-    if (!locationRes.ok) throw new Error("Failed to fetch.");
-    console.log(locationRes);
-    const locationData = await locationRes.json();
-    locationKey = locationData[0].Key;
+    if (!res.ok) throw new Error("Failed to fetch.");
+    const data = await res.json();
+    locationKey = data[0].Key;
+    currentWeatherURL = `http://dataservice.accuweather.com/currentconditions/v1/${locationKey}?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&language=pl&details=true`;
+    forecast12hourURL = `http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/${locationKey}?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&language=pl&metric=true`;
+    forecast5dayURL = `http://dataservice.accuweather.com/forecasts/v1/daily/5day/${locationKey}?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&language=pl&metric=true`;
   } catch (err) {
     displayErrorLabel("Nie udało się znaleźć miejscowości.");
   }
 };
 
-const getCurrentWeather = async function (locationKey) {
+// const getCurrentWeather = async function () {
+//   try {
+//     // fetching for current forecast
+//     const forecastRes = await fetch(
+//       `http://dataservice.accuweather.com/currentconditions/v1/${locationKey}?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&language=pl&details=true`
+//     );
+//     if (!forecastRes.ok) throw new Error("Failed to fetch.");
+//     const forecastData = await forecastRes.json();
+//     return forecastData[0];
+//   } catch (err) {
+//     displayErrorLabel("Nie udało się uzyskać danych o pogodzie.");
+//   }
+// };
+
+const fetchAPI = async function (url) {
   try {
-    // fetching for current forecast
-    const forecastRes = await fetch(
-      `http://dataservice.accuweather.com/currentconditions/v1/${locationKey}?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&language=pl&details=true`
-    );
-    if (!forecastRes.ok) throw new Error("Failed to fetch.");
-    const forecastData = await forecastRes.json();
-    return forecastData[0];
+    const res = await fetch(url);
+    console.log(url);
+    if (!res.ok) throw new Error("Failed to fetch.");
+    const data = await res.json();
+    return data;
   } catch (err) {
-    displayErrorLabel("Nie udało się uzyskać danych o pogodzie.");
+    displayErrorLabel("Coś poszło nie tak.");
   }
 };
 
@@ -130,34 +164,36 @@ const setCurrentWeather = function (data) {
 
 // ----------------- 12 HOUR WEATHER INFO ---------------------
 
-const get12HForecast = async function () {
-  try {
-    //const locationKey = await getLocationKey(city);
-    const forecastRes = await fetch(
-      `http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/${locationKey}?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&language=pl&metric=true`
-    );
-    if (!forecastRes.ok) throw new Error("Failed to fetch.");
-    const forecastData = await forecastRes.json();
-    return forecastData;
-  } catch (err) {
-    console.error(err.message);
-  }
-};
+// TO MOŻNA ZASTĄPIĆ FETCHAPI
 
-const get5DaysForecast = async function () {
-  try {
-    //const locationKey = await getLocationKey(city);
-    const forecastRes = await fetch(
-      `http://dataservice.accuweather.com/forecasts/v1/daily/5day/${locationKey}?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&language=pl&metric=true`
-    );
-    if (!forecastRes.ok) throw new Error("Failed to fetch.");
-    const forecastData = await forecastRes.json();
-    console.log(forecastData.DailyForecasts);
-    return forecastData.DailyForecasts;
-  } catch (err) {
-    console.error(err.message);
-  }
-};
+// const get12HForecast = async function () {
+//   try {
+//     //const locationKey = await getLocationKey(city);
+//     const forecastRes = await fetch(
+//       `http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/${locationKey}?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&language=pl&metric=true`
+//     );
+//     if (!forecastRes.ok) throw new Error("Failed to fetch.");
+//     const forecastData = await forecastRes.json();
+//     return forecastData;
+//   } catch (err) {
+//     displayErrorLabel("Coś poszło nie tak.");
+//   }
+// };
+
+// const get5DaysForecast = async function () {
+//   try {
+//     //const locationKey = await getLocationKey(city);
+//     const forecastRes = await fetch(
+//       `http://dataservice.accuweather.com/forecasts/v1/daily/5day/${locationKey}?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&language=pl&metric=true`
+//     );
+//     if (!forecastRes.ok) throw new Error("Failed to fetch.");
+//     const forecastData = await forecastRes.json();
+//     console.log(forecastData.DailyForecasts);
+//     return forecastData.DailyForecasts;
+//   } catch (err) {
+//     displayErrorLabel("Coś poszło nie tak.");
+//   }
+// };
 
 // ----------------- GEOLOCATION -----------------
 
@@ -168,7 +204,6 @@ const geolocationPositive = async function (position) {
   // 1. setWeatherToCurrentLocation
   const city = await reverseGeocoding(latitude, longitude);
   await setWeatherInfo(city);
-  await chartInit();
 };
 
 const geolocationNegative = async function () {
@@ -177,7 +212,6 @@ const geolocationNegative = async function () {
   );
   // set weather to default city
   await setWeatherInfo(defaultCity);
-  await chartInit();
 };
 
 const getGeolocation = function () {
@@ -303,8 +337,8 @@ const chartInit = async function () {
   const xValues = getXValues(12);
   const yValues = await getYValues(12);
   // const yValues = [5, 4, 3, 2, 1, 1, 1, 1, 3, 6, 9, 12];
-  const ymin = Math.min(...yValues);
-  const ymax = Math.max(...yValues);
+  const ymin = Math.round(Math.min(...yValues));
+  const ymax = Math.round(Math.max(...yValues));
   const barColor = getComputedStyle(root).getPropertyValue("--chart-bar-color");
 
   const weatherChart = new Chart(document.getElementById("weatherChart"), {
@@ -329,7 +363,7 @@ const chartInit = async function () {
             ticks: {
               min: ymin - 3,
               max: ymax + 3,
-              stepSize: (ymax + ymin) / 12,
+              stepSize: 1,
             },
           },
         ],
