@@ -162,8 +162,9 @@ const get5DaysForecast = async function () {
 // ----------------- GEOLOCATION -----------------
 
 const geolocationPositive = async function (position) {
-  const latitude = position.coords.latitude;
-  const longitude = position.coords.longitude;
+  const pos = position.coords;
+  const latitude = pos.latitude;
+  const longitude = pos.longitude;
   // 1. setWeatherToCurrentLocation
   const city = await reverseGeocoding(latitude, longitude);
   await setWeatherInfo(city);

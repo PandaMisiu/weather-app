@@ -30,6 +30,7 @@ body {
 ::placeholder {
   color: var(--placeholder-color);
 }
+
 .app {
   display: flex;
   flex-direction: column;
