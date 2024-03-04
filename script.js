@@ -5,7 +5,7 @@
 // - weather info 12 hour i 5 dni
 // - przyciski obok pogody do zmiany grafu na 12 hour i 5 dni
 // - dodać żeby w tym boxie przy hoverze była tylko temperatura
-// - ogarnąć jeszcze funkcje fetchAPI ładnie
+// - ogarnąć jeszcze funkcje getJSON ładnie
 
 // GEOLOCATION
 const geolocationBtn = document.querySelector(".geolocation--btn");
@@ -74,39 +74,9 @@ let locationKey = 0; // global location key, to only run getLocationKey function
 let currentWeatherURL;
 let forecast12hourURL;
 let forecast5dayURL;
+let reverseGeolocationURL;
 
-// const setWeatherInfo = async function (city) {
-//   try {
-//     getFullDate();
-//     await getLocationKey(city);
-//     if (locationKey === undefined) throw new Error("Invalid Location Key");
-//     setCurrentCity(city);
-//     const currentWeather = await getCurrentWeather();
-//     // console.log(currentWeather);
-//     setCurrentWeather(currentWeather);
-//     // await get5DaysForecast();
-//     await chartInit();
-//   } catch (err) {
-//     console.log(err.message);
-//   }
-// };
-
-const setWeatherInfo = async function (city) {
-  try {
-    getFullDate();
-    await getLocationKey(city);
-    if (locationKey === undefined) throw new Error("Invalid Location Key");
-    setCurrentCity(city);
-    const [currentWeather] = await fetchAPI(currentWeatherURL);
-    // console.log(currentWeather);
-    setCurrentWeather(currentWeather);
-    // await get5DaysForecast();
-    await chartInit();
-  } catch (err) {
-    console.log(err.message);
-  }
-};
-
+// finds the location key of the city and sets the urls for other APIs
 const getLocationKey = async function (city) {
   try {
     const res = await fetch(
@@ -123,21 +93,7 @@ const getLocationKey = async function (city) {
   }
 };
 
-// const getCurrentWeather = async function () {
-//   try {
-//     // fetching for current forecast
-//     const forecastRes = await fetch(
-//       `http://dataservice.accuweather.com/currentconditions/v1/${locationKey}?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&language=pl&details=true`
-//     );
-//     if (!forecastRes.ok) throw new Error("Failed to fetch.");
-//     const forecastData = await forecastRes.json();
-//     return forecastData[0];
-//   } catch (err) {
-//     displayErrorLabel("Nie udało się uzyskać danych o pogodzie.");
-//   }
-// };
-
-const fetchAPI = async function (url) {
+const getJSON = async function (url) {
   try {
     const res = await fetch(url);
     console.log(url);
@@ -145,7 +101,7 @@ const fetchAPI = async function (url) {
     const data = await res.json();
     return data;
   } catch (err) {
-    displayErrorLabel("Coś poszło nie tak.");
+    throw err;
   }
 };
 
@@ -164,46 +120,19 @@ const setCurrentWeather = function (data) {
 
 // ----------------- 12 HOUR WEATHER INFO ---------------------
 
-// TO MOŻNA ZASTĄPIĆ FETCHAPI
-
-// const get12HForecast = async function () {
-//   try {
-//     //const locationKey = await getLocationKey(city);
-//     const forecastRes = await fetch(
-//       `http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/${locationKey}?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&language=pl&metric=true`
-//     );
-//     if (!forecastRes.ok) throw new Error("Failed to fetch.");
-//     const forecastData = await forecastRes.json();
-//     return forecastData;
-//   } catch (err) {
-//     displayErrorLabel("Coś poszło nie tak.");
-//   }
-// };
-
-// const get5DaysForecast = async function () {
-//   try {
-//     //const locationKey = await getLocationKey(city);
-//     const forecastRes = await fetch(
-//       `http://dataservice.accuweather.com/forecasts/v1/daily/5day/${locationKey}?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&language=pl&metric=true`
-//     );
-//     if (!forecastRes.ok) throw new Error("Failed to fetch.");
-//     const forecastData = await forecastRes.json();
-//     console.log(forecastData.DailyForecasts);
-//     return forecastData.DailyForecasts;
-//   } catch (err) {
-//     displayErrorLabel("Coś poszło nie tak.");
-//   }
-// };
-
 // ----------------- GEOLOCATION -----------------
 
 const geolocationPositive = async function (position) {
-  const pos = position.coords;
-  const latitude = pos.latitude;
-  const longitude = pos.longitude;
-  // 1. setWeatherToCurrentLocation
-  const city = await reverseGeocoding(latitude, longitude);
-  await setWeatherInfo(city);
+  try {
+    const { latitude, longitude } = position.coords;
+    reverseGeolocationURL = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+    // 1. setWeatherToCurrentLocation
+    const data = await getJSON(reverseGeolocationURL);
+    const city = data.address?.city;
+    await setWeatherInfo(city);
+  } catch (err) {
+    displayErrorLabel(err.message);
+  }
 };
 
 const geolocationNegative = async function () {
@@ -223,19 +152,19 @@ const getGeolocation = function () {
   }
 };
 
-const reverseGeocoding = async function (lat, long) {
-  try {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${long}`
-    );
-    const data = await res.json();
-    const city = data.address?.city;
-    return city;
-  } catch (err) {
-    console.log(err.message);
-    displayErrorLabel("Nie udało się odnaleźć twojej lokalizacji.");
-  }
-};
+// const reverseGeocoding = async function (lat, long) {
+//   try {
+//     const res = await fetch(
+//       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${long}`
+//     );
+//     const data = await res.json();
+//     const city = data.address?.city;
+//     return city;
+//   } catch (err) {
+//     console.log(err.message);
+//     displayErrorLabel("Nie udało się odnaleźć twojej lokalizacji.");
+//   }
+// };
 
 geolocationBtn.addEventListener("click", getGeolocation);
 
@@ -327,83 +256,146 @@ darkModeBtn.addEventListener("click", () => {
 // ----------------- CHART ---------------------
 
 // console.log(Chart.defaults);
-Chart.defaults.global.defaultFontSize = 16;
-Chart.defaults.global.defaultFontColor =
-  getComputedStyle(root).getPropertyValue("--text-color");
+// Chart.defaults.global.defaultFontSize = 16;
+// Chart.defaults.global.defaultFontColor =
+//   getComputedStyle(root).getPropertyValue("--text-color");
 
-const set12HourChart = function () {};
+const reloadChart = function () {
+  const parent = document.querySelector(".weather-chart--container");
+  const oldCanvas = document.getElementById("weatherChart");
+  oldCanvas.remove();
+  const newCanvas = `<canvas
+  id="weatherChart"
+  style="width: 100%; height: 100%"
+  ></canvas>`;
 
-const chartInit = async function () {
-  const xValues = getXValues(12);
-  const yValues = await getYValues(12);
-  // const yValues = [5, 4, 3, 2, 1, 1, 1, 1, 3, 6, 9, 12];
+  parent.insertAdjacentHTML("afterbegin", newCanvas);
+};
+
+const setChart = async function (type) {
+  // let titleTooltip = [8, 2, 1, 4, 2, 3, 4, 1, 2, 3, 11, 2];
+  const xValues = getXValues(type);
+  const yValues = await getYValues(type);
   const ymin = Math.round(Math.min(...yValues));
   const ymax = Math.round(Math.max(...yValues));
   const barColor = getComputedStyle(root).getPropertyValue("--chart-bar-color");
 
-  const weatherChart = new Chart(document.getElementById("weatherChart"), {
+  const data = {
+    labels: xValues,
+    datasets: [
+      {
+        backgroundColor: barColor,
+        data: yValues,
+        fill: false,
+        borderWidth: 3,
+        borderColor: barColor,
+        pointHoverRadius: 6,
+      },
+    ],
+  };
+  const config = {
     type: "line",
-    data: {
-      labels: xValues,
-      datasets: [
-        {
-          backgroundColor: barColor,
-          data: yValues,
-          fill: false,
-          borderWidth: 3,
-          borderColor: barColor,
-        },
-      ],
-    },
+    data,
     options: {
       legend: false,
-      scales: {
-        yAxes: [
-          {
-            ticks: {
-              min: ymin - 3,
-              max: ymax + 3,
-              stepSize: 1,
-            },
+      "scales[y]": {
+        // TUTAJ COŚ SIE ZJEBAŁO CHYBA
+        ticks: {
+          min: ymin - 3,
+          max: ymax + 3,
+          stepSize: 1,
+        },
+      },
+      plugins: {
+        tooltip: {
+          yAlign: "bottom",
+          displayColors: false,
+          callbacks: {
+            // title: titleTooltip,
           },
-        ],
+        },
       },
     },
-  });
+  };
+
+  new Chart(document.getElementById("weatherChart"), config);
 };
 
 const getXValues = function (count) {
   const xValues = [];
   const date = new Date();
-  let hours = date.getHours() + 1;
-  let addHour = 0;
-  for (let i = 0; i < count; i++) {
-    if (hours + addHour >= 24) {
-      hours = 0;
-      addHour = 0;
+  if (count === 12) {
+    let hours = date.getHours() + 1;
+    let addHour = 0;
+    for (let i = 0; i < count; i++) {
+      if (hours + addHour >= 24) {
+        hours = 0;
+        addHour = 0;
+      }
+      xValues.push(`${hours + addHour}:00`);
+      addHour++;
     }
-    xValues.push(`${hours + addHour}:00`);
-    addHour++;
-  }
-  return xValues;
+    return xValues;
+  } else if (count === 5) {
+    const options = {
+      day: "numeric",
+      month: "long",
+    };
+
+    for (let i = 0; i < 5; i++) {
+      const currentDate = new Date(date);
+      currentDate.setDate(date.getDate() + i);
+
+      const formattedDate = Intl.DateTimeFormat("pl", options).format(
+        currentDate
+      );
+      xValues.push(formattedDate);
+    }
+    return xValues;
+  } else throw new Error("Niepoprawne dane.");
 };
 
 const getYValues = async function (type) {
-  const data = type === 12 ? await get12HForecast() : await get5DaysForecast();
   const yValues = [];
-  for (const elem of data) {
-    yValues.push(elem.Temperature.Value);
-  }
-  return yValues;
+
+  if (type === 12) {
+    const data = await getJSON(forecast12hourURL);
+    if (!data) throw new Error("Data is undefined.");
+    for (const elem of data) {
+      yValues.push(elem.Temperature.Value);
+    }
+
+    return yValues;
+  } else if (type === 5) {
+    const { DailyForecasts: data } = await getJSON(forecast5dayURL);
+
+    if (!data) throw new Error("Data is undefined.");
+    for (const elem of data) {
+      yValues.push(elem.Temperature.Maximum.Value);
+    }
+    return yValues;
+  } else throw new Error("Niepoprawne dane.");
 };
+
+weatherInfo5DayBtn.addEventListener("click", async () => {
+  reloadChart();
+  await setChart(5);
+});
+
+weatherInfo12HourBtn.addEventListener("click", async () => {
+  reloadChart();
+  await setChart(12);
+});
 
 // ----------------- INIT -------------------
 
-const init = function () {
+const init = async function () {
   if (darkMode) {
     root.classList.add("dark-theme");
   }
   getGeolocation();
+  // await getLocationKey("Tarnów");
+  // await getYValues(5);
 };
 
 init();

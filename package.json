@@ -1,17 +1,19 @@
 {
   "name": "weather-app",
   "version": "1.0.0",
-  "main": "script.js",
   "devDependencies": {
     "parcel": "^2.12.0"
   },
   "scripts": {
-    "start": "parcel index.html"
+    "start": "parcel index.html",
+    "build": "parcel build index.html"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "chart.js": "^4.4.2"
+    "chart.js": "^4.4.2",
+    "core-js": "^3.36.0",
+    "regenerator-runtime": "^0.14.1"
   }
 }
