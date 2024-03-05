@@ -10,7 +10,12 @@
 .weather-info--container,
 .weather-info--img--wrapper,
 .main,
-.weather-info--btns {
+.weather-info--btns,
+.air-quality,
+.air-quality-smog,
+.air-quality-pm25,
+.air-quality-pm25-value,
+.air-quality-rest {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -19,7 +24,7 @@
 .weather-info--container,
 .weather-info--main--wrapper,
 .weather-info--img--wrapper,
-.opt-city--container,
+.air-quality--container,
 .weather-info--btns {
   box-shadow: 0.1px 0.1px 1.7px rgba(0, 0, 0, 0.016),
     0.3px 0.3px 4.3px rgba(0, 0, 0, 0.022),
@@ -31,21 +36,71 @@
   width: 100dvw;
   flex: 1;
   column-gap: 15px;
-  padding: 15px;
+  padding: 15px 10px 10px 10px;
 }
 
-.opt-city--wrapper {
+.air-quality--wrapper {
   flex: 1;
   height: 100%;
   display: flex;
   align-items: center;
 }
 
-.opt-city--container {
+.air-quality--container {
   height: 100%;
   width: 100%;
   border-radius: 25px;
   background-color: var(--panel-color);
+  padding: 10px;
+}
+
+.air-quality {
+  width: 100%;
+  min-height: 300px;
+  background-color: var(--text-color);
+  border-radius: calc(25px - 10px);
+  color: var(--panel-color);
+  flex-direction: column;
+  justify-content: start;
+  padding: 10px;
+}
+
+.air-quality-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.air-quality-smog {
+  width: 100%;
+  margin-top: 10px;
+  height: 80px;
+}
+
+.air-quality-pm25 {
+  flex: 1;
+  font-size: 3rem;
+}
+.air-quality-pm25-value {
+  flex: 1;
+  font-size: 4.5rem;
+  font-weight: 600;
+}
+
+.air-quality-pm10 {
+  font-size: 1.5rem;
+  width: 100%;
+  margin-left: 40px;
+}
+
+.air-quality-rest {
+  width: 100%;
+  margin: 10px 0 0 60px;
+}
+
+.air-quality-rest-left,
+.air-quality-rest-right {
+  flex: 1;
 }
 
 .weather-info--wrapper {
@@ -157,8 +212,8 @@
   border: none;
   background-color: var(--text-color);
   color: var(--panel-color);
-  font-weight: 500;
-  font-size: 1.1rem;
+  font-weight: 600;
+  font-size: 1.2rem;
   transform: all 0.2s;
   cursor: pointer;
 }

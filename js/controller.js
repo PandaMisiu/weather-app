@@ -1,13 +1,23 @@
 import "core-js/stable";
 import "regenerator-runtime/runtime";
-// import * as model from "./model.js";
+import {
+  API_KEY_POLLUTION,
+  API_KEY_WEATHER,
+  CURRENT_WEATHER_URL,
+  DEFAULT_CITY,
+  DETAILS,
+  FORECAST_12H_URL,
+  FORECAST_5D_URL,
+  LOCATION_KEY_URL,
+  METRIC,
+} from "./config.js";
+import { forecast12H, forecast5D, airQuality } from "./model.js";
 
 // TODO:
-// - graf, dodać temperature itp
-// - weather info 12 hour i 5 dni
-// - przyciski obok pogody do zmiany grafu na 12 hour i 5 dni
-// - dodać żeby w tym boxie przy hoverze była tylko temperatura
-// - ogarnąć jeszcze funkcje getJSON ładnie
+// - dodać air quality po lewej
+// - dodać reverse geocoding z miasta na lat long
+// - może charta zamienić z library na import
+// - [BUG] Jak się wpisuje w search bara przy dark modzie to nie wyświetlają się napisy
 
 // GEOLOCATION
 const geolocationBtn = document.querySelector(".geolocation--btn");
@@ -47,7 +57,19 @@ const darkModeBtn = document.querySelector(".change-mode--btn");
 const root = document.documentElement;
 const darkMode = localStorage.getItem("dark-mode");
 
+// AIR QUALITY
+const airQualityPM2_5 = document.querySelector(".air-quality-pm25-value");
+const airQualityPM10 = document.querySelector(".air-quality-pm10-value");
+const airQualityCO = document.querySelector(".air-quality-co-value");
+const airQualityNO = document.querySelector(".air-quality-no-value");
+const airQualityNO2 = document.querySelector(".air-quality-no2-value");
+const airQualityO3 = document.querySelector(".air-quality-o3-value");
+const airQualitySO2 = document.querySelector(".air-quality-so2-value");
+const airQualityNH3 = document.querySelector(".air-quality-nh3-value");
+
 // ----------------- CURRENT WEATHER INFO -----------------
+
+let locationKey = 0; // global location key, to only run getLocationKey function once
 
 const setWeatherInfo = async function (city) {
   try {
@@ -55,9 +77,12 @@ const setWeatherInfo = async function (city) {
     await getLocationKey(city);
     if (!locationKey) throw new Error("Invalid Location Key");
     setCurrentCity(city);
-    const [currentWeather] = await getJSON(currentWeatherURL);
+    const [currentWeather] = await getJSON(
+      CURRENT_WEATHER_URL + locationKey + API_KEY_WEATHER + DETAILS
+    );
     setCurrentWeather(currentWeather);
     await setChart(12);
+    await setAirQuality(city);
   } catch (err) {
     displayErrorLabel(err.message);
   }
@@ -85,25 +110,13 @@ const setCurrentWeatherState = function (data) {
   weatherInfoImg.textContent = getWeatherState(data.WeatherIcon);
 };
 
-let defaultCity = "Warszawa"; // global default city, when geolacation fails
-let locationKey = 0; // global location key, to only run getLocationKey function once
-let currentWeatherURL;
-let forecast12hourURL;
-let forecast5dayURL;
-let reverseGeolocationURL;
-
 // finds the location key of the city and sets the urls for other APIs
 const getLocationKey = async function (city) {
   try {
-    const res = await fetch(
-      `http://dataservice.accuweather.com/locations/v1/cities/search?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&q=${city}&language=pl`
-    );
+    const res = await fetch(`${LOCATION_KEY_URL}${city}`);
     if (!res.ok) throw new Error("Failed to fetch.");
     const data = await res.json();
     locationKey = data[0].Key;
-    currentWeatherURL = `http://dataservice.accuweather.com/currentconditions/v1/${locationKey}?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&language=pl&details=true`;
-    forecast12hourURL = `http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/${locationKey}?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&language=pl&metric=true`;
-    forecast5dayURL = `http://dataservice.accuweather.com/forecasts/v1/daily/5day/${locationKey}?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&language=pl&metric=true`;
   } catch (err) {
     displayErrorLabel("Nie udało się znaleźć miejscowości.");
   }
@@ -133,16 +146,14 @@ const setCurrentWeather = function (data) {
   setCurrentWeatherState(data);
 };
 
-// ----------------- 12 HOUR WEATHER INFO ---------------------
-
 // ----------------- GEOLOCATION -----------------
 
 const geolocationPositive = async function (position) {
   try {
     const { latitude, longitude } = position.coords;
-    reverseGeolocationURL = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
-    // 1. setWeatherToCurrentLocation
-    const data = await getJSON(reverseGeolocationURL);
+    const data = await getJSON(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+    );
     const city = data.address?.city;
     await setWeatherInfo(city);
   } catch (err) {
@@ -155,7 +166,7 @@ const geolocationNegative = async function () {
     "Nie udało się uzyskać Twojej lokalizacji. Zmień ustawienia w przeglądarce."
   );
   // set weather to default city
-  await setWeatherInfo(defaultCity);
+  await setWeatherInfo(DEFAULT_CITY);
 };
 
 const getGeolocation = function () {
@@ -166,20 +177,6 @@ const getGeolocation = function () {
     );
   }
 };
-
-// const reverseGeocoding = async function (lat, long) {
-//   try {
-//     const res = await fetch(
-//       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${long}`
-//     );
-//     const data = await res.json();
-//     const city = data.address?.city;
-//     return city;
-//   } catch (err) {
-//     console.log(err.message);
-//     displayErrorLabel("Nie udało się odnaleźć twojej lokalizacji.");
-//   }
-// };
 
 geolocationBtn.addEventListener("click", getGeolocation);
 
@@ -270,11 +267,6 @@ darkModeBtn.addEventListener("click", () => {
 
 // ----------------- CHART ---------------------
 
-// console.log(Chart.defaults);
-// Chart.defaults.global.defaultFontSize = 16;
-// Chart.defaults.global.defaultFontColor =
-//   getComputedStyle(root).getPropertyValue("--text-color");
-
 const reloadChart = function () {
   const parent = document.querySelector(".weather-chart--container");
   const oldCanvas = document.getElementById("weatherChart");
@@ -288,51 +280,112 @@ const reloadChart = function () {
 };
 
 const setChart = async function (type) {
-  // let titleTooltip = [8, 2, 1, 4, 2, 3, 4, 1, 2, 3, 11, 2];
   const xValues = getXValues(type);
-  const yValues = await getYValues(type);
-  const ymin = Math.round(Math.min(...yValues));
-  const ymax = Math.round(Math.max(...yValues));
-  const barColor = getComputedStyle(root).getPropertyValue("--chart-bar-color");
+  await getYValues(type);
+  const temperatureValues =
+    type === 12 ? forecast12H.temperatures : forecast5D.temperatures;
+  const rainValues = type === 12 ? forecast12H.rain : forecast5D.rain;
+  const tempMax = Math.max(...temperatureValues);
+  const tempMin = Math.min(...temperatureValues);
+  const rainMax = Math.max(...rainValues);
+
+  const color = getComputedStyle(root).getPropertyValue(
+    "--chart-default-color"
+  );
+  const colorSecondary = getComputedStyle(root).getPropertyValue(
+    "--chart-secondary-color"
+  );
 
   const data = {
     labels: xValues,
     datasets: [
       {
-        backgroundColor: barColor,
-        data: yValues,
+        type: "line",
+        backgroundColor: color,
+        data: temperatureValues,
         fill: false,
         borderWidth: 3,
-        borderColor: barColor,
-        pointHoverRadius: 6,
+        borderColor: color,
+        yAxisID: "temperature",
+      },
+      {
+        type: "bar",
+        data: rainValues,
+        backgroundColor: colorSecondary,
+        yAxisID: "rain",
       },
     ],
   };
   const config = {
-    type: "line",
+    // type: "line",
     data,
     options: {
       legend: false,
-      "scales[y]": {
-        // TUTAJ COŚ SIE ZJEBAŁO CHYBA
-        ticks: {
-          min: ymin - 3,
-          max: ymax + 3,
-          stepSize: 1,
+      scales: {
+        temperature: {
+          axis: "y",
+          min: Math.round(tempMin - tempMin / 10),
+          max: Math.round(tempMax + tempMax / 10),
+          ticks: {
+            stepSize: 1,
+            color: colorSecondary,
+            font: {
+              size: 15,
+              family: "Montserrat, Arial",
+              weight: 500,
+            },
+          },
+        },
+
+        rain: {
+          axis: "y",
+          max: Math.round(rainMax + rainMax / 10),
+          display: false,
+        },
+        x: {
+          ticks: {
+            color: colorSecondary,
+            font: {
+              size: 15,
+              family: "Montserrat, Arial",
+              weight: 500,
+            },
+          },
+        },
+      },
+      elements: {
+        point: {
+          hitRadius: 30,
+          pointHoverRadius: 5,
+          radius: 3,
         },
       },
       plugins: {
         tooltip: {
           yAlign: "bottom",
+          backgroundColor: color,
+          bodyFont: {
+            weight: 500,
+            size: 16,
+            family: "Montserrat, Arial",
+          },
           displayColors: false,
+          padding: 10,
           callbacks: {
-            // title: titleTooltip,
+            title: () => "",
+            label: (elem) => {
+              return elem.datasetIndex === 0
+                ? `${elem.raw}°C`
+                : `${elem.raw} mm`;
+            },
           },
         },
+        legend: false,
       },
     },
   };
 
+  reloadChart();
   new Chart(document.getElementById("weatherChart"), config);
 };
 
@@ -371,36 +424,90 @@ const getXValues = function (count) {
 };
 
 const getYValues = async function (type) {
-  const yValues = [];
+  try {
+    const temperatures = [];
+    const rain = [];
 
-  if (type === 12) {
-    const data = await getJSON(forecast12hourURL);
-    if (!data) throw new Error("Data is undefined.");
-    for (const elem of data) {
-      yValues.push(elem.Temperature.Value);
-    }
+    if (type === 12) {
+      const data = await getJSON(
+        FORECAST_12H_URL + locationKey + API_KEY_WEATHER + METRIC + DETAILS
+      );
 
-    return yValues;
-  } else if (type === 5) {
-    const { DailyForecasts: data } = await getJSON(forecast5dayURL);
-
-    if (!data) throw new Error("Data is undefined.");
-    for (const elem of data) {
-      yValues.push(elem.Temperature.Maximum.Value);
-    }
-    return yValues;
-  } else throw new Error("Niepoprawne dane.");
+      if (!data) throw new Error("Data is undefined.");
+      for (const elem of data) {
+        temperatures.push(elem.Temperature.Value);
+        rain.push(elem.Rain.Value);
+      }
+      forecast12H.temperatures = temperatures;
+      forecast12H.rain = rain;
+    } else if (type === 5) {
+      const { DailyForecasts: data } = await getJSON(
+        FORECAST_5D_URL + locationKey + API_KEY_WEATHER + METRIC + DETAILS
+      );
+      if (!data) throw new Error("Data is undefined.");
+      for (const elem of data) {
+        temperatures.push(elem.Temperature.Maximum.Value);
+        rain.push(elem.Day.Rain.Value);
+      }
+      forecast5D.temperatures = temperatures;
+      forecast5D.rain = rain;
+    } else throw new Error("Niepoprawne dane.");
+  } catch (err) {
+    displayErrorLabel(err.message);
+  }
 };
 
 weatherInfo5DayBtn.addEventListener("click", async () => {
-  reloadChart();
   await setChart(5);
 });
 
 weatherInfo12HourBtn.addEventListener("click", async () => {
-  reloadChart();
   await setChart(12);
 });
+
+// ----------------- AIR QUALITY -------------------
+
+const getPositionFromCity = async function (city, limit) {
+  try {
+    const [{ lat, lon }] = await getJSON(
+      `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=${limit}&appid=${API_KEY_POLLUTION}`
+    );
+    return { lat, lon };
+  } catch (err) {
+    displayErrorLabel(err.message);
+  }
+};
+
+const getAirQuality = async function (city) {
+  try {
+    const { lat, lon } = await getPositionFromCity(city, 1);
+    const { list: data } = await getJSON(
+      `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY_POLLUTION}`
+    );
+    airQuality.components = data[0].components;
+    airQuality.aqi = data[0].main.aqi;
+  } catch (err) {
+    displayErrorLabel(err.message);
+  }
+};
+
+const setAirQuality = async function (city) {
+  try {
+    await getAirQuality(city);
+    airQualityPM2_5.textContent = airQuality.components.pm2_5;
+    airQualityPM10.textContent = airQuality.components.pm10;
+    airQualityCO.textContent = airQuality.components.co;
+    airQualityNO.textContent = airQuality.components.no;
+    airQualityNO2.textContent = airQuality.components.no2;
+    airQualityO3.textContent = airQuality.components.o3;
+    airQualitySO2.textContent = airQuality.components.so2;
+    airQualityNH3.textContent = airQuality.components.nh3;
+
+    airQualityPM2_5.style.color = `var(--air-quality-${airQuality.aqi})`;
+  } catch (err) {
+    displayErrorLabel(err.message);
+  }
+};
 
 // ----------------- INIT -------------------
 
@@ -409,8 +516,6 @@ const init = async function () {
     root.classList.add("dark-theme");
   }
   getGeolocation();
-  // await getLocationKey("Tarnów");
-  // await getYValues(5);
 };
 
 init();

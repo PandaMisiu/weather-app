@@ -1,6 +1,8 @@
 .pac-container {
   border-radius: 20px;
   background-color: var(--background-color);
+  border: none;
+  margin-top: 5px;
 }
 
 .pac-container::after {
@@ -13,6 +15,17 @@
 
 .pac-item {
   padding: 8px 16px;
+  transition: 0.15s;
+  background-color: var(--background-color);
+  border: none;
+}
+
+.pac-item:hover {
+  background-color: var(--autocomplete-hover-color);
+}
+
+.pac-item:active {
+  opacity: 0.8;
 }
 
 .pac-item-query {

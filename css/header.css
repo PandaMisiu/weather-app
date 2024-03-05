@@ -31,7 +31,7 @@
 .header--container {
   width: 100%;
   border-radius: 25px;
-  margin: 15px 15px 0 15px;
+  margin: 10px 10px 0 10px;
   background-color: var(--panel-color);
 }
 
@@ -66,7 +66,7 @@
   background-color: var(--search-bar-color);
   margin-right: 15px;
   transition: 0.1s;
-  color: var(--text-color);
+  color: var(--search-bar-text-color);
   font-weight: 500;
   cursor: pointer;
 }
@@ -76,24 +76,24 @@
   height: 50px;
   border-radius: 50%;
   border: none;
-  background-color: var(--search-btn-color);
-  color: var(--search-btn-text-color);
+  background-color: var(--text-color);
+  color: var(--panel-color);
   transition: background-color 0.15s;
-  border: 1.5px solid var(--text-color);
   margin-right: 15px;
 }
 
 .search-bar--btn:hover {
-  background-color: var(--secondary-color);
+  opacity: 0.8;
 }
 
 .search-bar--btn:active {
-  opacity: 0.8;
+  opacity: 0.6;
 }
 
 .search-bar:focus {
   outline: none;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
 }
 
 .btns--container {

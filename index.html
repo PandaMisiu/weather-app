@@ -23,10 +23,9 @@
     <link rel="stylesheet" href="css/chart.css" />
     <!-- <script defer src="script.js"></script> -->
     <script type="module" src="js/controller.js"></script>
-    <script type="module" src="js/model.js"></script>
+    <!-- <script type="module" src="js/model.js"></script>
     <script type="module" src="js/helpers.js"></script>
-    <script type="module" src="js/config.js"></script>
-    <script type="module" src="js/views/weatherInfoView.js"></script>
+    <script type="module" src="js/views/weatherInfoView.js"></script> -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOVIkp6lsuDBV1cCUwVIbrh4Y_VzfK17U&libraries=places"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
@@ -69,8 +68,43 @@
         </button>
       </div>
       <main class="main">
-        <div class="opt-city--wrapper">
-          <div class="opt-city--container"></div>
+        <div class="air-quality--wrapper">
+          <div class="air-quality--container">
+            <div class="air-quality">
+              <div class="air-quality-title">Jakość Powietrza [μg/m3]</div>
+              <div class="air-quality-smog">
+                <div class="air-quality-pm25">PM2.5:</div>
+                <div class="air-quality-pm25-value">0</div>
+              </div>
+              <div class="air-quality-pm10">
+                PM10: <span class="air-quality-pm10-value">0</span>
+              </div>
+              <div class="air-quality-rest">
+                <div class="air-quality-rest-left">
+                  <div class="air-quality-co">
+                    CO: <span class="air-quality-co-value">0</span>
+                  </div>
+                  <div class="air-quality-no">
+                    NO: <span class="air-quality-no-value">0</span>
+                  </div>
+                  <div class="air-quality-no2">
+                    NO<sub>2</sub>: <span class="air-quality-no2-value">0</span>
+                  </div>
+                </div>
+                <div class="air-quality-rest-right">
+                  <div class="air-quality-o3">
+                    O<sub>3</sub>: <span class="air-quality-o3-value">0</span>
+                  </div>
+                  <div class="air-quality-so2">
+                    SO<sub>2</sub>: <span class="air-quality-so2-value">0</span>
+                  </div>
+                  <div class="air-quality-nh3">
+                    NH<sub>3</sub>: <span class="air-quality-nh3-value">0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="weather-info--wrapper">
           <div class="weather-info--container">
