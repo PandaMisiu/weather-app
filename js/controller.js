@@ -1,3 +1,4 @@
+import Chart from "chart.js/auto";
 import "core-js/stable";
 import "regenerator-runtime/runtime";
 import {
@@ -14,10 +15,8 @@ import {
 import { forecast12H, forecast5D, airQuality } from "./model.js";
 
 // TODO:
-// - dodać air quality po lewej
-// - dodać reverse geocoding z miasta na lat long
-// - może charta zamienić z library na import
-// - [BUG] Jak się wpisuje w search bara przy dark modzie to nie wyświetlają się napisy
+// - DOKOŃCZYĆ RESPONSIVE LAYOUT
+// - DOKOŃCZYĆ MVC
 
 // GEOLOCATION
 const geolocationBtn = document.querySelector(".geolocation--btn");
@@ -56,6 +55,7 @@ const errorLabelMessage = document.querySelector(".error--label-message");
 const darkModeBtn = document.querySelector(".change-mode--btn");
 const root = document.documentElement;
 const darkMode = localStorage.getItem("dark-mode");
+const darkModeBtnContent = document.querySelector(".change-mode--btn-content");
 
 // AIR QUALITY
 const airQualityPM2_5 = document.querySelector(".air-quality-pm25-value");
@@ -260,8 +260,11 @@ darkModeBtn.addEventListener("click", () => {
 
   if (root.classList.contains("dark-theme")) {
     localStorage.setItem("dark-mode", true);
+    console.log(darkModeBtnContent);
+    darkModeBtnContent.textContent = "light_mode";
   } else {
     localStorage.removeItem("dark-mode");
+    darkModeBtnContent.textContent = "dark_mode";
   }
 });
 
@@ -320,6 +323,8 @@ const setChart = async function (type) {
     // type: "line",
     data,
     options: {
+      responsive: false,
+      maintainAspectRatio: false,
       legend: false,
       scales: {
         temperature: {
@@ -514,6 +519,7 @@ const setAirQuality = async function (city) {
 const init = async function () {
   if (darkMode) {
     root.classList.add("dark-theme");
+    darkModeBtnContent.textContent = "light_mode";
   }
   getGeolocation();
 };

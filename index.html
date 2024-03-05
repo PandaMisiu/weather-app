@@ -21,13 +21,8 @@
     <link rel="stylesheet" href="css/error-label.css" />
     <link rel="stylesheet" href="css/autocomplete-search.css" />
     <link rel="stylesheet" href="css/chart.css" />
-    <!-- <script defer src="script.js"></script> -->
     <script type="module" src="js/controller.js"></script>
-    <!-- <script type="module" src="js/model.js"></script>
-    <script type="module" src="js/helpers.js"></script>
-    <script type="module" src="js/views/weatherInfoView.js"></script> -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOVIkp6lsuDBV1cCUwVIbrh4Y_VzfK17U&libraries=places"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
     <div class="app">
@@ -47,17 +42,22 @@
               <span class="material-symbols-outlined"> search </span>
             </button>
           </div>
-          <div class="btns--container">
-            <button class="geolocation--btn">
-              <span class="material-symbols-outlined"> my_location </span>
-              <div class="btn--label">Lokalizacja</div>
-            </button>
+          <div class="hamburger-menu">
+            <div class="btns--container">
+              <button class="geolocation--btn">
+                <span class="material-symbols-outlined"> my_location </span>
+                <div class="btn--label">Lokalizacja</div>
+              </button>
 
-            <button class="change-mode--btn">
-              <span class="material-symbols-outlined"> light_mode </span>
-              <!-- <span class="material-symbols-outlined"> dark_mode </span> -->
-              <div class="btn--label">Tryb</div>
-            </button>
+              <button class="change-mode--btn">
+                <span
+                  class="material-symbols-outlined change-mode--btn-content"
+                >
+                  dark_mode
+                </span>
+                <div class="btn--label">Tryb</div>
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -71,13 +71,13 @@
         <div class="air-quality--wrapper">
           <div class="air-quality--container">
             <div class="air-quality">
-              <div class="air-quality-title">Jakość Powietrza [μg/m3]</div>
+              <div class="air-quality-title">Jakość Powietrza</div>
               <div class="air-quality-smog">
                 <div class="air-quality-pm25">PM2.5:</div>
                 <div class="air-quality-pm25-value">0</div>
               </div>
               <div class="air-quality-pm10">
-                PM10: <span class="air-quality-pm10-value">0</span>
+                PM10: <span class="air-quality-pm10-value"> 0</span>
               </div>
               <div class="air-quality-rest">
                 <div class="air-quality-rest-left">
@@ -149,11 +149,13 @@
                 </button>
               </div>
             </div>
-            <div class="weather-chart--container">
-              <canvas
-                id="weatherChart"
-                style="width: 100%; height: 100%"
-              ></canvas>
+            <div class="weather-chart--wrapper">
+              <div class="weather-chart--container">
+                <canvas
+                  id="weatherChart"
+                  style="width: 200%; height: 100%"
+                ></canvas>
+              </div>
             </div>
           </div>
         </div>

@@ -13,5 +13,4 @@ export const API_KEY_WEATHER =
 export const DEFAULT_CITY = "Warszawa"; // global default city, when geolacation fails
 
 // AIR POLLUTION
-
 export const API_KEY_POLLUTION = "c99d8bee6e57f8a460ad5b325d2e161e";
