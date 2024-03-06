@@ -66,7 +66,7 @@
 }
 
 .air-quality-title {
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: 600;
   margin-top: 10px;
 }
@@ -79,11 +79,12 @@
 
 .air-quality-pm25 {
   flex: 1;
-  font-size: 3rem;
+  font-size: 2.5rem;
+  font-weight: 500;
 }
 .air-quality-pm25-value {
   flex: 1;
-  font-size: 4.5rem;
+  font-size: 4rem;
   font-weight: 600;
 }
 
@@ -221,7 +222,7 @@
   background-color: var(--text-color);
   color: var(--panel-color);
   font-weight: 600;
-  font-size: 1.2rem;
+  font-size: 0.9rem;
   transform: all 0.2s;
   cursor: pointer;
 }
@@ -234,7 +235,7 @@
   opacity: 0.7;
 }
 
-@media screen and (max-width: 1440px) {
+@media screen and (max-width: 1490px) {
   .air-quality-title {
     font-size: 1.4rem;
   }
@@ -261,8 +262,10 @@
     font-size: 4rem;
   }
 
-  .weather-info--btn {
-    font-size: 0.9rem;
+  .weather-info--secondary {
+    flex-direction: column;
+    row-gap: 10px;
+    justify-content: center;
   }
 }
 
@@ -290,9 +293,12 @@
     height: 140px;
     margin-top: 15px;
   }
+  .weather-info--secondary {
+    flex-direction: row;
+  }
 }
 
-@media screen and (max-width: 1024px) {
+@media screen and (max-width: 1124px) {
   .main {
     flex-direction: column-reverse;
   }
@@ -335,7 +341,7 @@
   }
 }
 
-@media screen and (max-width: 660px) {
+@media screen and (max-width: 890px) {
   .weather-info--secondary {
     flex-direction: column;
     align-items: start;
@@ -343,15 +349,23 @@
   }
 }
 
-/* TUTAJ DOKOŃCZYĆ */
-@media screen and (max-width: 550px) {
+@media screen and (max-width: 590px) {
   .weather-info--wrapper {
     width: 100%;
   }
   .weather-info {
     flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
+  .weather-info--img--wrapper {
+    padding: 10px 0;
+  }
+
+  .weather-info--main--wrapper {
+    margin: 15px 15px 0 15px;
   }
   .weather-info--btns {
-    flex-basis: 0%;
+    flex-shrink: 1;
   }
 }

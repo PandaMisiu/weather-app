@@ -344,7 +344,7 @@ const setChart = async function (type) {
 
         rain: {
           axis: "y",
-          max: Math.round(rainMax + rainMax / 10),
+          max: rainMax + rainMax / 10,
           display: false,
         },
         x: {
