@@ -56,7 +56,6 @@
 
 .air-quality {
   width: 100%;
-  min-height: 300px;
   background-color: var(--text-color);
   border-radius: calc(25px - 15px);
   color: var(--panel-color);
@@ -103,7 +102,7 @@
 
 .air-quality-rest {
   width: 100%;
-  margin-top: 10px;
+  margin: 10px 0;
 }
 
 .air-quality-rest-left,
@@ -324,9 +323,6 @@
     margin: 0;
   }
 
-  .air-quality-rest {
-    margin: 0;
-  }
   .air-quality-rest-left,
   .air-quality-rest-right,
   .air-quality-pm10 {
@@ -337,6 +333,8 @@
   .air-quality-rest-left,
   .air-quality-rest-right {
     flex-direction: column;
+  }
+  .air-quality-rest {
     font-size: 1.2rem;
   }
 }
@@ -367,5 +365,42 @@
   }
   .weather-info--btns {
     flex-shrink: 1;
+  }
+}
+@media screen and (max-width: 440px) {
+  .weather-info--temp {
+    font-size: 3.8rem;
+  }
+  .weather-info--cloud {
+    font-size: 1rem;
+  }
+  .weather-info--rain {
+    font-size: 0.8rem;
+  }
+  .weather-info--secondary {
+    font-size: 0.8rem;
+    row-gap: 5px;
+    margin-top: 5px;
+    align-items: end;
+  }
+  .weather-info--main--wrapper {
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .air-quality-title {
+    font-size: 1.5rem;
+  }
+  .air-quality-pm25 {
+    font-size: 2rem;
+  }
+  .air-quality-pm25-value {
+    font-size: 2.5rem;
+  }
+  .air-quality-pm10 {
+    font-size: 1.2rem;
+  }
+  .air-quality-rest {
+    font-size: 0.8rem;
   }
 }

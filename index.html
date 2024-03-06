@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="css/error-label.css" />
     <link rel="stylesheet" href="css/autocomplete-search.css" />
     <link rel="stylesheet" href="css/chart.css" />
+    <link rel="stylesheet" href="css/scrollbar.css" />
     <script type="module" src="js/controller.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOVIkp6lsuDBV1cCUwVIbrh4Y_VzfK17U&libraries=places"></script>
   </head>
@@ -42,23 +43,24 @@
               <span class="material-symbols-outlined"> search </span>
             </button>
           </div>
-          <div class="hamburger-menu">
-            <div class="btns--container">
-              <button class="geolocation--btn">
-                <span class="material-symbols-outlined"> my_location </span>
-                <div class="btn--label">Lokalizacja</div>
-              </button>
+          <!-- <div class="hamburger-menu"> -->
+          <button class="hamburger-menu" aria-expanded="false">
+            <span class="material-symbols-outlined"> menu </span>
+          </button>
+          <div class="btns--container">
+            <button class="geolocation--btn">
+              <span class="material-symbols-outlined"> my_location </span>
+              <div class="btn--label">Lokalizacja</div>
+            </button>
 
-              <button class="change-mode--btn">
-                <span
-                  class="material-symbols-outlined change-mode--btn-content"
-                >
-                  dark_mode
-                </span>
-                <div class="btn--label">Tryb</div>
-              </button>
-            </div>
+            <button class="change-mode--btn">
+              <span class="material-symbols-outlined change-mode--btn-content">
+                dark_mode
+              </span>
+              <div class="btn--label">Tryb</div>
+            </button>
           </div>
+          <!-- </div> -->
         </div>
       </header>
       <div class="error--label">
@@ -130,7 +132,7 @@
                 </div>
                 <div class="weather-info--secondary">
                   <span class="weather-info--apparent-temp"
-                    >Odczuwalna: <span class="apparent-value">0</span> &deg;C
+                    >Odczuwalna: <span class="apparent-value">0</span>&deg;C
                   </span>
                   <span class="weather-info--pressure"
                     >Ciśnienie: <span class="pressure-value">0000</span> hPa

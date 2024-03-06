@@ -13,6 +13,7 @@ import {
   METRIC,
 } from "./config.js";
 import { forecast12H, forecast5D, airQuality } from "./model.js";
+import { getJSON, setCurrentCity, getFullDate } from "./helpers.js";
 
 // TODO:
 // - DOKOŃCZYĆ RESPONSIVE LAYOUT
@@ -20,10 +21,6 @@ import { forecast12H, forecast5D, airQuality } from "./model.js";
 
 // GEOLOCATION
 const geolocationBtn = document.querySelector(".geolocation--btn");
-
-// CITY INFO
-const cityInfoName = document.querySelector(".city-info--name");
-const cityInfoDate = document.querySelector(".city-info--date");
 
 // WEATHER INFO
 const weatherInfoTemp = document.querySelector(".temp-value");
@@ -66,6 +63,11 @@ const airQualityNO2 = document.querySelector(".air-quality-no2-value");
 const airQualityO3 = document.querySelector(".air-quality-o3-value");
 const airQualitySO2 = document.querySelector(".air-quality-so2-value");
 const airQualityNH3 = document.querySelector(".air-quality-nh3-value");
+
+// HAMBURGER MENU
+const hamburgerMenuBtn = document.querySelector(".hamburger-menu");
+const btnsContainer = document.querySelector(".btns--container");
+const btnLabels = document.querySelectorAll(".btn--label");
 
 // ----------------- CURRENT WEATHER INFO -----------------
 
@@ -122,17 +124,6 @@ const getLocationKey = async function (city) {
   }
 };
 
-const getJSON = async function (url) {
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("Failed to fetch.");
-    const data = await res.json();
-    return data;
-  } catch (err) {
-    throw err;
-  }
-};
-
 const setCurrentWeather = function (data) {
   // console.log(data);
   weatherInfoTemp.textContent = Math.round(data.Temperature.Metric.Value);
@@ -181,22 +172,6 @@ const getGeolocation = function () {
 geolocationBtn.addEventListener("click", getGeolocation);
 
 // ----------------- CITY INFO -----------------
-
-const setCurrentCity = function (city) {
-  cityInfoName.textContent = city;
-};
-
-const getFullDate = function () {
-  const now = new Date();
-  const options = {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    weekday: "long",
-  };
-
-  cityInfoDate.textContent = Intl.DateTimeFormat("pl", options).format(now);
-};
 
 // ----------------- SEARCH BAR ----------------
 
@@ -329,8 +304,8 @@ const setChart = async function (type) {
       scales: {
         temperature: {
           axis: "y",
-          min: Math.round(tempMin - tempMin / 10),
-          max: Math.round(tempMax + tempMax / 10),
+          min: Math.floor(tempMin - tempMin / 10),
+          max: Math.ceil(tempMax + tempMax / 10),
           ticks: {
             stepSize: 1,
             color: colorSecondary,
@@ -514,6 +489,55 @@ const setAirQuality = async function (city) {
   }
 };
 
+// ----------------- HAMBURGER MENU -------------------
+
+function getWidth() {
+  return document.body.offsetWidth;
+}
+
+const menuExpand = function () {
+  const expanded =
+    hamburgerMenuBtn.getAttribute("aria-expanded") === "true" ? true : false;
+  if (!expanded) {
+    btnsContainer.style.transform = "translate(0%, 80%)";
+    hamburgerMenuBtn.setAttribute("aria-expanded", true);
+  } else {
+    btnsContainer.style.transform = "translate(200%, 80%)";
+    hamburgerMenuBtn.setAttribute("aria-expanded", false);
+  }
+};
+
+hamburgerMenuBtn.addEventListener("click", menuExpand);
+
+window.onresize = resize;
+
+function resize() {
+  const pageWidth = getWidth();
+  if (pageWidth <= 500) hamburgerON();
+  else hamburgerOFF();
+}
+
+const hamburgerOFF = function () {
+  hamburgerMenuBtn.style.display = "none";
+  hamburgerMenuBtn.setAttribute("aria-expanded", false);
+  btnsContainer.removeAttribute("style");
+  btnsContainer.classList.remove("hamburger-on");
+};
+
+const hamburgerON = function () {
+  hamburgerMenuBtn.style.display = "flex";
+  btnsContainer.classList.add("hamburger-on");
+  setTimeout(() => {
+    btnsContainer.style.transition = "0.25s";
+  }, 10);
+};
+
+const hamburgerMenuInit = function () {
+  const pageWidth = getWidth();
+  if (pageWidth > 500) hamburgerOFF();
+  else hamburgerON();
+};
+
 // ----------------- INIT -------------------
 
 const init = async function () {
@@ -522,6 +546,7 @@ const init = async function () {
     darkModeBtnContent.textContent = "light_mode";
   }
   getGeolocation();
+  hamburgerMenuInit();
 };
 
 init();
