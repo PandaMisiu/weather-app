@@ -450,7 +450,7 @@ weatherInfo12HourBtn.addEventListener("click", async () => {
 const getPositionFromCity = async function (city, limit) {
   try {
     const [{ lat, lon }] = await getJSON(
-      `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=${limit}&appid=${API_KEY_POLLUTION}`
+      `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=${limit}&appid=${API_KEY_POLLUTION}`
     );
     return { lat, lon };
   } catch (err) {
@@ -462,7 +462,7 @@ const getAirQuality = async function (city) {
   try {
     const { lat, lon } = await getPositionFromCity(city, 1);
     const { list: data } = await getJSON(
-      `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY_POLLUTION}`
+      `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY_POLLUTION}`
     );
     airQuality.components = data[0].components;
     airQuality.aqi = data[0].main.aqi;

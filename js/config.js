@@ -1,11 +1,11 @@
 export const CURRENT_WEATHER_URL =
-  "http://dataservice.accuweather.com/currentconditions/v1/";
+  "https://dataservice.accuweather.com/currentconditions/v1/";
 export const FORECAST_12H_URL =
-  "http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/";
+  "https://dataservice.accuweather.com/forecasts/v1/hourly/12hour/";
 export const FORECAST_5D_URL =
-  "http://dataservice.accuweather.com/forecasts/v1/daily/5day/";
+  "https://dataservice.accuweather.com/forecasts/v1/daily/5day/";
 export const LOCATION_KEY_URL =
-  "http://dataservice.accuweather.com/locations/v1/cities/search?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&language=pl&q=";
+  "https://dataservice.accuweather.com/locations/v1/cities/search?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&language=pl&q=";
 export const DETAILS = "&details=true";
 export const METRIC = "&metric=true";
 export const API_KEY_WEATHER =
