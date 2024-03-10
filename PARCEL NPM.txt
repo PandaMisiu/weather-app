@@ -1,8 +1,0 @@
-npm -v  --- sprawdza wersje npm'a
-npm init  --- inicjalizuje (tworzy package.json)
-npm i (albo install) 'nazwa pakietu' --- instaluje pakiet i dodaje do dependencies w package.json
-Przy kopiowaniu projektu nie kopiować node_modules, bo dużo waży. Wystarczy wpisać w terminal: "npm i" i wszystko się zainstaluje (tylko musi być package.json)
-npm i parcel --save-dev ---instaluje parcel'a jako devDependency
-dodajemy do scripts w package.json: "start": "parcel index.html" i w terminalu odpalamy npm run start
-npm i core-js i import core-js/stable (to konwertuje wszystko oprócz async)
-npm i regenerator-runtime i import regenerator-runtime/runtime (to jest do async)
