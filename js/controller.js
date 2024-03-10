@@ -13,11 +13,14 @@ import {
   METRIC,
 } from "./config.js";
 import { forecast12H, forecast5D, airQuality } from "./model.js";
-import { getJSON, setCurrentCity, getFullDate } from "./helpers.js";
-
-// TODO:
-// - DOKOŃCZYĆ RESPONSIVE LAYOUT
-// - DOKOŃCZYĆ MVC
+import {
+  getJSON,
+  setCurrentCity,
+  getFullDate,
+  displayErrorLabel,
+  updateClock,
+} from "./helpers.js";
+import { setAirQuality } from "./airQuality.js";
 
 // GEOLOCATION
 const geolocationBtn = document.querySelector(".geolocation--btn");
@@ -43,26 +46,11 @@ const weatherInfo5DayBtn = document.querySelector(".weather-info--5day-btn");
 const searchBar = document.querySelector(".search-bar");
 const searchBtn = document.querySelector(".search-bar--btn");
 
-// ERROR
-const errorLabel = document.querySelector(".error--label");
-const errorLabelButton = document.querySelector(".error--label-close-btn");
-const errorLabelMessage = document.querySelector(".error--label-message");
-
 // DARK MODE
 const darkModeBtn = document.querySelector(".change-mode--btn");
 const root = document.documentElement;
 const darkMode = localStorage.getItem("dark-mode");
 const darkModeBtnContent = document.querySelector(".change-mode--btn-content");
-
-// AIR QUALITY
-const airQualityPM2_5 = document.querySelector(".air-quality-pm25-value");
-const airQualityPM10 = document.querySelector(".air-quality-pm10-value");
-const airQualityCO = document.querySelector(".air-quality-co-value");
-const airQualityNO = document.querySelector(".air-quality-no-value");
-const airQualityNO2 = document.querySelector(".air-quality-no2-value");
-const airQualityO3 = document.querySelector(".air-quality-o3-value");
-const airQualitySO2 = document.querySelector(".air-quality-so2-value");
-const airQualityNH3 = document.querySelector(".air-quality-nh3-value");
 
 // HAMBURGER MENU
 const hamburgerMenuBtn = document.querySelector(".hamburger-menu");
@@ -125,7 +113,6 @@ const getLocationKey = async function (city) {
 };
 
 const setCurrentWeather = function (data) {
-  // console.log(data);
   weatherInfoTemp.textContent = Math.round(data.Temperature.Metric.Value);
   weatherInfoCloud.textContent = data.WeatherText;
   weatherInfoRain.textContent = data.Precip1hr.Metric.Value;
@@ -160,7 +147,7 @@ const geolocationNegative = async function () {
   await setWeatherInfo(DEFAULT_CITY);
 };
 
-const getGeolocation = function () {
+export const getGeolocation = function () {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       geolocationPositive,
@@ -170,8 +157,6 @@ const getGeolocation = function () {
 };
 
 geolocationBtn.addEventListener("click", getGeolocation);
-
-// ----------------- CITY INFO -----------------
 
 // ----------------- SEARCH BAR ----------------
 
@@ -197,36 +182,6 @@ const search = async function () {
 
 searchBar.addEventListener("search", search);
 searchBtn.addEventListener("click", search);
-
-// ----------------- ERROR HANDLING -------------------
-
-const hideErrorLabel = function () {
-  errorLabel.style.display = "none";
-};
-
-const displayErrorLabel = function (message) {
-  errorLabel.style.display = "flex";
-  errorLabelMessage.textContent = message;
-
-  errorLabelButton.addEventListener("click", hideErrorLabel);
-
-  setTimeout(hideErrorLabel, 10000);
-};
-
-// ----------------- CLOCK -------------------
-
-const clockContent = document.querySelector(".clock--content");
-
-const updateClock = function () {
-  const date = new Date();
-  const hours = date.getHours() >= 10 ? date.getHours() : "0" + date.getHours();
-  const minutes =
-    date.getMinutes() >= 10 ? date.getMinutes() : "0" + date.getMinutes();
-  const currentTime = `${hours}:${minutes}`;
-  clockContent.textContent = currentTime;
-};
-
-setInterval(updateClock, 1000);
 
 // ----------------- DARK MODE -------------------
 
@@ -295,7 +250,6 @@ const setChart = async function (type) {
     ],
   };
   const config = {
-    // type: "line",
     data,
     options: {
       responsive: false,
@@ -445,50 +399,6 @@ weatherInfo12HourBtn.addEventListener("click", async () => {
   await setChart(12);
 });
 
-// ----------------- AIR QUALITY -------------------
-
-const getPositionFromCity = async function (city, limit) {
-  try {
-    const [{ lat, lon }] = await getJSON(
-      `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=${limit}&appid=${API_KEY_POLLUTION}`
-    );
-    return { lat, lon };
-  } catch (err) {
-    displayErrorLabel(err.message);
-  }
-};
-
-const getAirQuality = async function (city) {
-  try {
-    const { lat, lon } = await getPositionFromCity(city, 1);
-    const { list: data } = await getJSON(
-      `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY_POLLUTION}`
-    );
-    airQuality.components = data[0].components;
-    airQuality.aqi = data[0].main.aqi;
-  } catch (err) {
-    displayErrorLabel(err.message);
-  }
-};
-
-const setAirQuality = async function (city) {
-  try {
-    await getAirQuality(city);
-    airQualityPM2_5.textContent = airQuality.components.pm2_5;
-    airQualityPM10.textContent = airQuality.components.pm10;
-    airQualityCO.textContent = airQuality.components.co;
-    airQualityNO.textContent = airQuality.components.no;
-    airQualityNO2.textContent = airQuality.components.no2;
-    airQualityO3.textContent = airQuality.components.o3;
-    airQualitySO2.textContent = airQuality.components.so2;
-    airQualityNH3.textContent = airQuality.components.nh3;
-
-    airQualityPM2_5.style.color = `var(--air-quality-${airQuality.aqi})`;
-  } catch (err) {
-    displayErrorLabel(err.message);
-  }
-};
-
 // ----------------- HAMBURGER MENU -------------------
 
 function getWidth() {
@@ -548,5 +458,5 @@ const init = async function () {
   getGeolocation();
   hamburgerMenuInit();
 };
-
+setInterval(updateClock, 1000);
 init();
