@@ -71,7 +71,8 @@ const setWeatherInfo = async function (city) {
       CURRENT_WEATHER_URL + locationKey + API_KEY_WEATHER + DETAILS
     );
     setCurrentWeather(currentWeather);
-    await setChart(12);
+    await getChartForecast();
+    setChart(12);
     await setAirQuality(city);
   } catch (err) {
     displayErrorLabel(err.message);
@@ -212,9 +213,15 @@ const reloadChart = function () {
   parent.insertAdjacentHTML("afterbegin", newCanvas);
 };
 
-const setChart = async function (type) {
+const getChartForecast = async function () {
+  await getYValues(12);
+  await getYValues(5);
+};
+
+let currentChartType = 12;
+
+const setChart = function (type) {
   const xValues = getXValues(type);
-  await getYValues(type);
   const temperatureValues =
     type === 12 ? forecast12H.temperatures : forecast5D.temperatures;
   const rainValues = type === 12 ? forecast12H.rain : forecast5D.rain;
@@ -391,12 +398,14 @@ const getYValues = async function (type) {
   }
 };
 
-weatherInfo5DayBtn.addEventListener("click", async () => {
-  await setChart(5);
+weatherInfo5DayBtn.addEventListener("click", () => {
+  setChart(5);
+  currentChartType = 5;
 });
 
-weatherInfo12HourBtn.addEventListener("click", async () => {
-  await setChart(12);
+weatherInfo12HourBtn.addEventListener("click", () => {
+  setChart(12);
+  currentChartType = 12;
 });
 
 // ----------------- HAMBURGER MENU -------------------
@@ -425,6 +434,7 @@ function resize() {
   const pageWidth = getWidth();
   if (pageWidth <= 500) hamburgerON();
   else hamburgerOFF();
+  setChart(currentChartType);
 }
 
 const hamburgerOFF = function () {
