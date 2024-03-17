@@ -55,7 +55,6 @@ const darkModeBtnContent = document.querySelector(".change-mode--btn-content");
 // HAMBURGER MENU
 const hamburgerMenuBtn = document.querySelector(".hamburger-menu");
 const btnsContainer = document.querySelector(".btns--container");
-const btnLabels = document.querySelectorAll(".btn--label");
 
 // ----------------- CURRENT WEATHER INFO -----------------
 
@@ -465,7 +464,7 @@ const init = async function () {
     root.classList.add("dark-theme");
     darkModeBtnContent.textContent = "light_mode";
   }
-  getGeolocation();
+  setWeatherInfo(DEFAULT_CITY);
   hamburgerMenuInit();
 };
 setInterval(updateClock, 1000);

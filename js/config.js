@@ -10,7 +10,7 @@ export const DETAILS = "&details=true";
 export const METRIC = "&metric=true";
 export const API_KEY_WEATHER =
   "?apikey=dIOroisQxPFlFdSJAwgYmgD7GnIPaCn4&language=pl";
-export const DEFAULT_CITY = "Warszawa"; // global default city, when geolacation fails
+export const DEFAULT_CITY = "Kraków";
 
 // AIR POLLUTION
 export const API_KEY_POLLUTION = "c99d8bee6e57f8a460ad5b325d2e161e";
